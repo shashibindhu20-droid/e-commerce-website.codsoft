@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopEase - Online Shopping</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;}
+  body{background:#f2f2f2;color:#111;}
+  
+  /* HEADER */
+  header{
+    background:#232f3e;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 30px;
+    flex-wrap:wrap;
+  }
+  .logo{font-size:1.8em;font-weight:bold;color:#febd69;cursor:pointer;}
+  .search-bar{
+    display:flex;
+    flex:1;
+    max-width:600px;
+    margin:10px 20px;
+  }
+  .search-bar input{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:4px 0 0 4px;
+    outline:none;
+  }
+  .search-bar button{
+    background:#febd69;
+    border:none;
+    padding:10px 15px;
+    border-radius:0 4px 4px 0;
+    cursor:pointer;
+    font-weight:bold;
+  }
+  .nav-right{
+    display:flex;
+    align-items:center;
+    gap:15px;
+  }
+  .cart-btn{
+    background:#febd69;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    color:#111;
+    font-weight:bold;
+  }
+
+  /* MAIN */
+  main{padding:25px 40px;}
+  h2{text-align:center;margin-bottom:20px;color:#111;}
+  .product-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+  }
+  .product{
+    background:white;
+    border-radius:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    padding:15px;
+    transition:transform .2s;
+  }
+  .product:hover{transform:scale(1.03);}
+  .product img{
+    width:100%;
+    height:220px;
+    object-fit:contain;
+  }
+  .product h3{font-size:1em;margin:10px 0 5px;}
+  .product p{color:#b12704;font-weight:bold;}
+  .product button{
+    width:48%;
+    border:none;
+    padding:8px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:8px;
+  }
+  .add-btn{background:#ffd814;}
+  .buy-btn{background:#ffa41c;}
+  
+  /* CART SIDEBAR */
+  .cart-sidebar{
+    position:fixed;
+    right:-400px;
+    top:0;
+    width:320px;
+    height:100vh;
+    background:white;
+    box-shadow:-3px 0 8px rgba(0,0,0,0.3);
+    padding:20px;
+    overflow-y:auto;
+    transition:right .3s ease;
+    z-index:999;
+  }
+  .cart-sidebar.open{right:0;}
+  .cart-sidebar h3{text-align:center;margin-bottom:10px;}
+  .cart-items li{
+    list-style:none;
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .close-cart{
+    background:red;
+    color:white;
+    border:none;
+    border-radius:5px;
+    float:right;
+    padding:5px 10px;
+    cursor:pointer;
+  }
+  .checkout-btn{
+    background:#ffa41c;
+    border:none;
+    width:100%;
+    padding:10px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:10px;
+  }
+
+  footer{
+    background:#232f3e;
+    color:white;
+    text-align:center;
+    padding:15px;
+    margin-top:30px;
+  }
+
+  @media(max-width:768px){
+    .search-bar{max-width:300px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ShopEase</div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search for products...">
+    <button id="searchBtn">🔍</button>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" id="cartBtn">🛒 Cart (<span id="cartCount">0</span>)</button>
+  </div>
+</header>
+
+<main>
+  <h2>🔥 Featured Products</h2>
+  <div class="product-grid" id="productList"></div>
+</main>
+
+<aside class="cart-sidebar" id="cartSidebar">
+  <button class="close-cart" id="closeCart">✖</button>
+  <h3>Your Cart</h3>
+  <ul class="cart-items" id="cartItems"></ul>
+  <p id="totalPrice"><strong>Total:</strong> ₹0</p>
+  <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+</aside>
+
+<footer>
+  © 2025 ShopEase | Inspired by Amazon | Built with ❤️ using HTML, CSS, JS
+</footer>
+
+<script>
+  const products=[
+    {id:1,name:"Apple iPhone 15",price:79999,img:"https://m.media-amazon.com/images/I/71xb2xkN5qL._AC_UL480_.jpg"},
+    {id:2,name:"Samsung Galaxy S24 Ultra",price:124999,img:"https://m.media-amazon.com/images/I/71Ftzmh3XWL._AC_UL480_.jpg"},
+    {id:3,name:"Sony WH-1000XM5 Headphones",price:29999,img:"https://m.media-amazon.com/images/I/61BOs-SZ3aL._AC_UL480_.jpg"},
+    {id:4,name:"Dell XPS 13 Laptop",price:115999,img:"https://m.media-amazon.com/images/I/81b3tF0O7-L._AC_UL480_.jpg"},
+    {id:5,name:"Apple Watch Series 9",price:41999,img:"https://m.media-amazon.com/images/I/71w3oJ7aWyL._AC_UL480_.jpg"},
+    {id:6,name:"Canon EOS 1500D DSLR",price:42999,img:"https://m.media-amazon.com/images/I/914hFeTU2-L._AC_UL480_.jpg"},
+    {id:7,name:"Nike Air Zoom Pegasus 40",price:8999,img:"https://m.media-amazon.com/images/I/61kVZkDUt1L._AC_UL480_.jpg"},
+    {id:8,name:"HP Envy x360 2-in-1",price:87999,img:"https://m.media-amazon.com/images/I/81U55XR9xGL._AC_UL480_.jpg"},
+    {id:9,name:"Samsung 55'' Smart TV",price:67999,img:"https://m.media-amazon.com/images/I/71RiQZ0J2xL._AC_UL480_.jpg"},
+    {id:10,name:"JBL Flip 6 Bluetooth Speaker",price:9999,img:"https://m.media-amazon.com/images/I/71Qk9N4nVhL._AC_UL480_.jpg"},
+    {id:11,name:"Amazon Echo Dot (5th Gen)",price:5499,img:"https://m.media-amazon.com/images/I/71xoR4A6qFL._AC_UL480_.jpg"},
+    {id:12,name:"Lenovo Ideapad 3 Laptop",price:59999,img:"https://m.media-amazon.com/images/I/61Dw5Z8LzJL._AC_UL480_.jpg"}
+  ];
+
+  const productList=document.getElementById("productList");
+  const cartSidebar=document.getElementById("cartSidebar");
+  const cartItems=document.getElementById("cartItems");
+  const totalPrice=document.getElementById("totalPrice");
+  const cartCount=document.getElementById("cartCount");
+  let cart=[];
+
+  function displayProducts(items){
+    productList.innerHTML="";
+    items.forEach(p=>{
+      const div=document.createElement("div");
+      div.classList.add("product");
+      div.innerHTML=`
+        <img src="${p.img}" alt="${p.name}">
+        <h3>${p.name}</h3>
+        <p>₹${p.price}</p>
+        <div style="display:flex;justify-content:space-between;">
+          <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+          <button class="buy-btn" onclick="buyNow(${p.id})">Buy Now</button>
+        </div>
+      `;
+      productList.appendChild(div);
+    });
+  }
+
+  function addToCart(id){
+    const product=products.find(p=>p.id===id);
+    cart.push(product);
+    cartCount.textContent=cart.length;
+    updateCart();
+  }
+
+  function updateCart(){
+    cartItems.innerHTML="";
+    let total=0;
+    cart.forEach((item,i)=>{
+      total+=item.price;
+      const li=document.createElement("li");
+      li.innerHTML=`${item.name} - ₹${item.price} <button onclick="removeItem(${i})">❌</button>`;
+      cartItems.appendChild(li);
+    });
+    totalPrice.innerHTML=`<strong>Total:</strong> ₹${total}`;
+  }
+
+  function removeItem(i){
+    cart.splice(i,1);
+    cartCount.textContent=cart.length;
+    updateCart();
+  }
+
+  function buyNow(id){
+    const product=products.find(p=>p.id===id);
+    alert(`✅ You purchased ${product.name} for ₹${product.price}`);
+  }
+
+  document.getElementById("cartBtn").addEventListener("click",()=>cartSidebar.classList.add("open"));
+  document.getElementById("closeCart").addEventListener("click",()=>cartSidebar.classList.remove("open"));
+  document.getElementById("checkoutBtn").addEventListener("click",()=>{
+    if(cart.length===0)return alert("Your cart is empty!");
+    alert("🛍️ Order placed successfully! Thank you for shopping with ShopEase.");
+    cart=[];
+    cartCount.textContent=0;
+    updateCart();
+  });
+
+  document.getElementById("searchBtn").addEventListener("click",()=>{
+    const q=document.getElementById("searchInput").value.toLowerCase();
+    const filtered=products.filter(p=>p.name.toLowerCase().includes(q));
+    displayProducts(filtered);
+  });
+
+  displayProducts(products);
+</script>
+</body>
+</html>
